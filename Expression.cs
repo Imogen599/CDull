@@ -27,7 +27,6 @@
 	public class Subtraction(Expression left, Expression right) : Operand(left, right)
 	{
 		public override float Evaluate() => Left.Evaluate() - Right.Evaluate();
-
 	}
 
 	public class Multiplication(Expression left, Expression right) : Operand(left, right)

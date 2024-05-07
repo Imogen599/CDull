@@ -30,7 +30,6 @@
 						'/' => new(TokenType.Divide, text),
 						'(' => new(TokenType.OpenParentheses, text),
 						')' => new(TokenType.CloseParentheses, text),
-						// Currently numbers, as nothing else is supported
 						_ => new(TokenType.Invalid, text),
 					};
 				}
@@ -42,15 +41,18 @@
 		private static Token ProcessNumber(string codeAsText, ref int index)
 		{
 			var numberText = string.Empty;
+			bool numberIsDecimal = false;
 			for (; index < codeAsText.Length; index++)
 			{
 				var character2 = codeAsText[index];
-				if (!char.IsDigit(character2))
+
+				if (char.IsDigit(character2) || (character2 == '.' && !numberIsDecimal))
+					numberText += character2;
+				else
 				{
-					index--;
+				    index--;
 					break;
 				}
-				numberText += character2;
 			}
 			return new(TokenType.Number, numberText);
 		}

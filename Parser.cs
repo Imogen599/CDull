@@ -73,7 +73,7 @@
 			var firstToken = tokens.First();
 			tokens.RemoveAt(0);
 			if (firstToken.Type is TokenType.Number)
-				return new Number(int.Parse(firstToken.Value));
+				return new Number(float.Parse(firstToken.Value));
 
 			if (firstToken.Type is TokenType.OpenParentheses)
 			{
