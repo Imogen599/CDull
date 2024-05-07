@@ -5,9 +5,9 @@
 		public abstract float Evaluate();
 	}
 
-	public class Number(int value) : Expression 
+	public class Number(float value) : Expression 
 	{
-		public int Value = value;
+		public float Value = value;
 
 		public override float Evaluate() => Value;
 	}
@@ -39,5 +39,12 @@
 	{
 		public override float Evaluate() => Left.Evaluate() / Right.Evaluate();
 
+	}
+
+	public class Negative(Expression value) : Expression
+	{
+		public Expression Value;
+
+		public override float Evaluate() => -value.Evaluate();
 	}
 }

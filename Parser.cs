@@ -35,7 +35,7 @@
 
 		private static Expression ParseFactor(List<Token> tokens)
 		{
-			var leftOperand = ParseBasic(tokens);
+			var leftOperand = ParseUnary(tokens);
 
 			if (tokens.Count == 0)
 				return leftOperand;
@@ -44,16 +44,28 @@
 			if (firstToken.Type is TokenType.Multiply)
 			{
 				tokens.RemoveAt(0);
-				var rightOperand = ParseBasic(tokens);
+				var rightOperand = ParseUnary(tokens);
 				return new Multiplication(leftOperand, rightOperand);
 			}
 			else if (firstToken.Type is TokenType.Divide)
 			{
 				tokens.RemoveAt(0);
-				var rightOperand = ParseBasic(tokens);
+				var rightOperand = ParseUnary(tokens);
 				return new Division(leftOperand, rightOperand);
 			}
 			return leftOperand;
+		}
+
+		private static Expression ParseUnary(List<Token> tokens)
+		{
+			var firstToken = tokens.First();
+			if (firstToken.Type is TokenType.Subtract)
+			{
+				tokens.RemoveAt(0);
+				return new Negative(ParseBasic(tokens));
+			}
+			else
+				return ParseBasic(tokens);
 		}
 
 		private static Expression ParseBasic(List<Token> tokens)

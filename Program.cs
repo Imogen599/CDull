@@ -9,6 +9,7 @@
 		OpenParentheses,
 		CloseParentheses,
 		Number,
+		Function,
 		Invalid
 	}
 
