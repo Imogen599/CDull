@@ -43,14 +43,21 @@
 				return;
 			}
 
-			List<Token> tokens = Tokenizer.GetTokensFromText(codeAsText);
+			var lines = codeAsText.Split("\n");
+			foreach (var line in lines)
+			{
+				List<Token> tokens = Tokenizer.GetTokensFromText(line.Replace("\r", ""));
+				bool debug = true;
 
-			foreach (var token in tokens)
-				Console.WriteLine(token.ToString());
+				Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+				var result = Parser.ParseTokens(tokens);
 
-			var result = Parser.ParseTokens(tokens);
-			Console.WriteLine(result.Evaluate());
-			Console.WriteLine(result.ToString());
+				// Very lazy and bad debug
+				if (debug)
+					Console.WriteLine(result.ToString());
+				Console.WriteLine(result.Evaluate());
+			}
+			Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 			Console.WriteLine("Press enter to exit.");
 			Console.ReadLine();
 		}
