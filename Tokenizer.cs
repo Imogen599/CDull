@@ -2,6 +2,68 @@
 {
 	public class Tokenizer
 	{
+		public Token CurrentToken
+		{
+			get;
+			private set;
+		}
+
+		public bool AtEnd => index >= line.Length - 1;
+
+		private string line;
+
+		private int index;
+
+		public void Initialize(string codeLine)
+		{
+			line = codeLine;
+			index = 0;
+			AdvanceToken();
+		}
+
+		public bool AdvanceToken()
+		{
+			if (index >= line.Length)
+				return false;
+
+			for (; index < line.Length; index++)
+			{
+				var character = line[index];
+				var text = character.ToString();
+
+				if (character == ' ')
+					continue;
+
+				if (char.IsNumber(character))
+				{
+					CurrentToken = ProcessNumber(line, ref index);
+					return true;
+
+				}
+				else if (char.IsLetter(character))
+				{
+					CurrentToken = ProcessFunction(line, ref index);
+					return true;
+				}
+				else
+				{
+					CurrentToken = character switch
+					{
+						'+' => new(TokenType.Add, text),
+						'-' => new(TokenType.Subtract, text),
+						'*' => new(TokenType.Multiply, text),
+						'/' => new(TokenType.Divide, text),
+						'(' => new(TokenType.OpenParentheses, text),
+						')' => new(TokenType.CloseParentheses, text),
+						_ => new(TokenType.Invalid, text),
+					};
+					index++;
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public static List<Token> GetTokensFromText(string codeAsText)
 		{
 			var tokens = new List<Token>();
@@ -53,10 +115,7 @@
 				if (char.IsDigit(character2) || (character2 == '.' && !numberIsDecimal))
 					numberText += character2;
 				else
-				{
-				    index--;
 					break;
-				}
 
 				if (character2 == '.')
 					numberIsDecimal = true;
@@ -74,10 +133,7 @@
 				if (char.IsLetter(character2))
 					functionText += character2;
 				else
-				{
-					index--;
 					break;
-				}
 			}
 			return new(TokenType.Function, functionText);
 		}

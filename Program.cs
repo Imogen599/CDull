@@ -46,11 +46,12 @@
 			var lines = codeAsText.Split("\n");
 			foreach (var line in lines)
 			{
-				List<Token> tokens = Tokenizer.GetTokensFromText(line.Replace("\r", ""));
+				Tokenizer tokenizer = new();
+				tokenizer.Initialize(line.Replace("\r", "").Replace("\n", "\n"));
 				bool debug = true;
 
 				Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-				var result = Parser.ParseTokens(tokens);
+				var result = Parser.ParseTokens(tokenizer);
 
 				// Very lazy and bad debug
 				if (debug)
