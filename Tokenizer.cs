@@ -8,27 +8,31 @@
 			private set;
 		}
 
-		public bool AtEnd => index >= line.Length - 1;
+		public bool AtEnd => Index >= line.Length - 1;
 
-		private string line;
+		private readonly string line;
 
-		private int index;
+		public int Index
+		{
+			get;
+			private set;
+		}
 
-		public void Initialize(string codeLine)
+		public Tokenizer(string codeLine)
 		{
 			line = codeLine;
-			index = 0;
+			Index = 0;
 			AdvanceToken();
 		}
 
 		public bool AdvanceToken()
 		{
-			if (index >= line.Length)
+			if (Index >= line.Length)
 				return false;
 
-			for (; index < line.Length; index++)
+			for (; Index < line.Length; Index++)
 			{
-				var character = line[index];
+				var character = line[Index];
 				var text = character.ToString();
 
 				if (character == ' ')
@@ -36,13 +40,13 @@
 
 				if (char.IsNumber(character))
 				{
-					CurrentToken = ProcessNumber(line, ref index);
+					CurrentToken = ProcessNumber(line);
 					return true;
 
 				}
 				else if (char.IsLetter(character))
 				{
-					CurrentToken = ProcessFunction(line, ref index);
+					CurrentToken = ProcessText(line);
 					return true;
 				}
 				else
@@ -57,20 +61,20 @@
 						')' => new(TokenType.CloseParentheses, text),
 						_ => new(TokenType.Invalid, text),
 					};
-					index++;
+					Index++;
 					return true;
 				}
 			}
 			return false;
 		}
 
-		private static Token ProcessNumber(string codeAsText, ref int index)
+		private Token ProcessNumber(string codeAsText)
 		{
 			var numberText = string.Empty;
 			bool numberIsDecimal = false;
-			for (; index < codeAsText.Length; index++)
+			for (; Index < codeAsText.Length; Index++)
 			{
-				var character2 = codeAsText[index];
+				var character2 = codeAsText[Index];
 
 				if (char.IsDigit(character2) || (character2 == '.' && !numberIsDecimal))
 					numberText += character2;
@@ -83,19 +87,62 @@
 			return new(TokenType.Number, numberText);
 		}
 
-		private static Token ProcessFunction(string codeAsText, ref int index)
+		private Token ProcessText(string codeAsText)
 		{
-			var functionText = string.Empty;
-			for (; index < codeAsText.Length; index++)
+			var firstWord = string.Empty;
+			for (; Index < codeAsText.Length; Index++)
 			{
-				var character2 = codeAsText[index];
+				var character = codeAsText[Index];
 
-				if (char.IsLetter(character2))
-					functionText += character2;
+				if (char.IsLetter(character))
+					firstWord += character;
 				else
 					break;
 			}
-			return new(TokenType.Function, functionText);
+			
+			if (firstWord == Definitions.DefinitionKeyword)
+			{
+				var variableName = string.Empty;
+				for (; Index < codeAsText.Length; Index++)
+				{
+					var character = codeAsText[Index];
+
+					if (char.IsLetter(character))
+						variableName += character;
+					else if (character is ' ' && variableName == string.Empty)
+						continue;
+					else
+						break;
+				}
+
+				if (Definitions.IsUserDefined(variableName, out var _))
+					throw new CompileException($"Variable '{variableName}' is already defined!");
+
+				if (Definitions.ExistingConstants.TryGetValue(variableName, out var _))
+					throw new CompileException($"'{variableName}' is ");
+
+				while (Index < codeAsText.Length)
+				{
+					Index++;
+					var character = codeAsText[Index];
+					if (character == ' ')
+						continue;
+					if (character != '=')
+						throw new CompileException($"Missing '=' after variable declaration!");
+					break;
+				}
+				return new(TokenType.Identifier, variableName);
+			}
+
+			if (Definitions.IsUserDefined(firstWord, out var value))
+				return new(TokenType.Number, value.Value.ToString());
+
+			if (Definitions.ExistingConstants.TryGetValue(firstWord, out var value2))
+				return new(TokenType.Number, value2.ToString());
+
+			if (!Definitions.ExistingFunctionsTable.TryGetValue(firstWord, out var _))
+				throw new CompileException($"The name '{firstWord}' does not exist in the current context!");
+			return new(TokenType.Function, firstWord);
 		}
 	}
 }

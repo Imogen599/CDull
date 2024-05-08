@@ -53,14 +53,27 @@
 
 	}
 
-	public class Function(Func<float, float> function, Expression parameter) : Expression
+	public class Function(string name, List<Expression> parameter) : Expression
 	{
-		public Func<float, float> FunctionDelegate = function;
+		public string Name = name;
 
-		public Expression Parameter = parameter;
+		public List<Expression> Parameter = parameter;
 
-		public override float Evaluate() => FunctionDelegate.Invoke(Parameter.Evaluate());
+		public override float Evaluate() => Definitions.ExistingFunctionsTable[Name].FunctionDelegate(Parameter);
 
-		public override string ToString() => $"{FunctionDelegate.Method.Name}({Parameter})";
+		public override string ToString() => $"{Name}({Parameter[..^1]})";
+	}
+
+	public class Variable(string name) : Expression
+	{
+		public string Name = name;
+
+		public override float Evaluate()
+		{
+			if (Definitions.IsUserDefined(Name, out var value))
+				return value.Value;
+
+			return 0;
+		}
 	}
 }

@@ -10,6 +10,7 @@
 		CloseParentheses,
 		Number,
 		Function,
+		Identifier,
 		Invalid
 	}
 
@@ -24,13 +25,20 @@
 
 	internal class Program
 	{
-		private const string fileName = "TestFile.code";
+		public const string fileName = "MyProgram.cdull";
+
+		internal static int CurrentLineNumber
+		{
+			get;
+			private set;
+		}
 
 		static void Main()
 		{
 			if (!File.Exists(Environment.CurrentDirectory + $"/{fileName}"))
 			{
-				Console.WriteLine("File not found!");
+				Console.WriteLine($"File not found! Path: {Environment.CurrentDirectory}/{fileName}");
+				Console.WriteLine("Press enter to exit.");
 				Console.ReadLine();
 				return;
 			}
@@ -39,26 +47,20 @@
 			if (codeAsText is null or "")
 			{
 				Console.WriteLine("File is empty or invalid!");
+				Console.WriteLine("Press enter to exit.");
 				Console.ReadLine();
 				return;
 			}
 
 			var lines = codeAsText.Split("\n");
+			List<Expression> expressions = [];
 			foreach (var line in lines)
 			{
-				Tokenizer tokenizer = new();
-				tokenizer.Initialize(line.Replace("\r", "").Replace("\n", "\n"));
-				bool debug = true;
-
-				Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-				var result = Parser.ParseTokens(tokenizer);
-
-				// Very lazy and bad debug
-				if (debug)
-					Console.WriteLine(result.ToString());
-				Console.WriteLine(result.Evaluate());
+				CurrentLineNumber++;
+				Tokenizer tokenizer = new(line.Replace("\r", "").Replace("\n", "\n"));
+				expressions.Add(Parser.ParseTokens(tokenizer));
 			}
-			Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			Console.WriteLine("Result: " + expressions.Last().Evaluate());
 			Console.WriteLine("Press enter to exit.");
 			Console.ReadLine();
 		}

@@ -2,7 +2,8 @@
 {
 	public class Parser
 	{
-		private static Tokenizer Tokenizer;
+		internal static Tokenizer Tokenizer;
+
 		public static Expression ParseTokens(Tokenizer tokenizer)
 		{
 			Tokenizer = tokenizer;
@@ -84,34 +85,43 @@
 				var term = ParseTerm();
 				firstToken = Tokenizer.CurrentToken;
 				if (firstToken.Type != TokenType.CloseParentheses)
-					throw new Exception("Unbalanced parentheses!");
+					throw new CompileException("Unbalanced parentheses!");
 				else
 					Tokenizer.AdvanceToken();
 				return term;
 			}
+
 			if (firstToken.Type is TokenType.Function)
 			{
-				//Tokenizer.AdvanceToken();
-				var term = ParseUnary();
-				var function = GetFunctionFromName(firstToken.Value);
-				return new Function(function, term);
-			}
-			throw new Exception($"Unexpected token: {firstToken}");
-		}
+				var secondTerm = Tokenizer.CurrentToken;
+				if (secondTerm.Type is not TokenType.OpenParentheses)
+					throw new CompileException("Error, missing parentheses after function name!");
+				Tokenizer.AdvanceToken();
+				List<Expression> parameters = [];
+				while (true)
+				{
+					parameters.Add(ParseTerm());
 
-		private static Func<float, float> GetFunctionFromName(string name)
-		{
-			return name switch
+					if (Tokenizer.CurrentToken.Type is TokenType.CloseParentheses)
+						break;
+				}
+				Tokenizer.AdvanceToken();
+
+				if (!Definitions.ExistingFunctionsTable.TryGetValue(firstToken.Value, out var value))
+					throw new CompileException($"Function '{firstToken.Value}' does not exist!");
+				if (value.ArgCount != parameters.Count)
+					throw new CompileException($"Incorrect number of parameters passed to function '{firstToken.Value}'! {value.ArgCount} were expected but only {parameters.Count} were found.");
+				return new Function(firstToken.Value, parameters);
+			}
+
+			if (firstToken.Type is TokenType.Identifier)
 			{
-				"sin" => MathF.Sin,
-				"cos" => MathF.Cos,
-				"tan" => MathF.Tan,
-				"log" => MathF.Log,
-				"abs" => MathF.Abs,
-				"floor" => MathF.Floor,
-				"ceiling" => MathF.Ceiling,
-				_ => input => input
-			};
+				Tokenizer.AdvanceToken();
+				var expression = ParseTerm();
+				Definitions.SetAsNewUserDefined(firstToken.Value, expression);
+				return new Variable(firstToken.Value);
+			}
+			throw new CompileException($"Unexpected token: {firstToken}");
 		}
 	}
 }
