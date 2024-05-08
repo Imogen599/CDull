@@ -8,7 +8,7 @@
 			private set;
 		}
 
-		public bool AtEnd => Index >= line.Length - 1;
+		public bool AtEnd => Index > line.Length - 1;
 
 		private readonly string line;
 
