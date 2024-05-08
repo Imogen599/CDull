@@ -1,4 +1,4 @@
-﻿namespace TokenizingPractice
+﻿namespace CDull
 {
 	public class Parser
 	{

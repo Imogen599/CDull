@@ -1,4 +1,4 @@
-﻿namespace TokenizingPractice
+﻿namespace CDull
 {
 	public class Ref<T>(T value) where T : struct
 	{
