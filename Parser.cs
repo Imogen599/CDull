@@ -85,7 +85,28 @@
 					tokens.RemoveAt(0);
 				return term;
 			}
+			if (firstToken.Type is TokenType.Function)
+			{
+				var term = ParseUnary(tokens);
+				var function = GetFunctionFromName(firstToken.Value);
+				return new Function(function, term);
+			}
 			throw new Exception($"Unexpected token: {firstToken}");
+		}
+
+		private static Func<float, float> GetFunctionFromName(string name)
+		{
+			return name switch
+			{
+				"sin" => MathF.Sin,
+				"cos" => MathF.Cos,
+				"tan" => MathF.Tan,
+				"log" => MathF.Log,
+				"abs" => MathF.Abs,
+				"floor" => MathF.Floor,
+				"ceiling" => MathF.Ceiling,
+				_ => input => input
+			};
 		}
 	}
 }

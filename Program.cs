@@ -48,8 +48,9 @@
 			foreach (var token in tokens)
 				Console.WriteLine(token.ToString());
 
-			Console.WriteLine(Parser.ParseTokens(tokens).Evaluate());
-
+			var result = Parser.ParseTokens(tokens);
+			Console.WriteLine(result.Evaluate());
+			Console.WriteLine(result.ToString());
 			Console.WriteLine("Press enter to exit.");
 			Console.ReadLine();
 		}

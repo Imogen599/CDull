@@ -20,6 +20,10 @@
 				{
 					token = ProcessNumber(codeAsText, ref i);
 				}
+				else if (char.IsLetter(character))
+				{
+					token = ProcessFunction(codeAsText, ref i);
+				}
 				else
 				{
 					token = character switch
@@ -53,8 +57,29 @@
 				    index--;
 					break;
 				}
+
+				if (character2 == '.')
+					numberIsDecimal = true;
 			}
 			return new(TokenType.Number, numberText);
+		}
+
+		private static Token ProcessFunction(string codeAsText, ref int index)
+		{
+			var functionText = string.Empty;
+			for (; index < codeAsText.Length; index++)
+			{
+				var character2 = codeAsText[index];
+
+				if (char.IsLetter(character2))
+					functionText += character2;
+				else
+				{
+					index--;
+					break;
+				}
+			}
+			return new(TokenType.Function, functionText);
 		}
 	}
 }
