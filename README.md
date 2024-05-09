@@ -1,6 +1,6 @@
 # CDull
-CDull is an extremely basic sublanguage and compiler written in C#. It supports basic mathematic operators, user variables, pre-existing functions and pre-existing constant values. The only data type is floating point numbers. To use, download the exe from the latest release and place into an empty folder. Create the file ``MyProgram.cdull`` in the folder, write some code in it and run the exe.
-It will compile (or tell you of any errors) and print the result of the final line to the console.
+CDull is an extremely basic sublanguage and interpreter written in C#. It supports basic mathematic operators, user variables, pre-existing functions and pre-existing constant values. The only data type is floating point numbers. To use, download the exe from the latest release and place into an empty folder. Create the file ``MyProgram.cdull`` in the folder, write some code in it and run the exe.
+It will run (and tell you of any errors) and print the result of the final line to the console if successful.
 
 ---
 
